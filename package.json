@@ -1,0 +1,21 @@
+{
+  "name": "node-unique-extensions",
+  "version": "1.0.0",
+  "description": "Returns a list of unique file extensions within the supplied directory",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "node test/test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mrjoelkemp/node-unique-extensions"
+  },
+  "keywords": [
+    "extensions"
+  ],
+  "author": "Joel Kemp <joel@mrjoelkemp.com>",
+  "license": "MIT"
+}
