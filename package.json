@@ -1,6 +1,6 @@
 {
   "name": "node-unique-extensions",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Returns a list of unique file extensions within the supplied directory",
   "main": "index.js",
   "directories": {
