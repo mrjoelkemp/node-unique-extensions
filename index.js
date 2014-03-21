@@ -17,7 +17,7 @@ var getUniqueExtensions = module.exports = function (filepath, exclusions) {
 
     if (isDirectory) {
       // It's not on the ignore list
-      if ((exclusions && exclusions.indexOf(filename) === -1) ||
+      if ((exclusions && ! shouldBeIgnored(filename, exclusions)) ||
           // Or there is no ignore list
           (! exclusions || exclusions.length === 0)) {
         getUniqueExtensions(fullName);
@@ -35,3 +35,20 @@ var getUniqueExtensions = module.exports = function (filepath, exclusions) {
 
   return Object.keys(extensions);
 };
+
+function shouldBeIgnored(filename, exclusions) {
+  var result = false;
+
+  exclusions = exclusions || [];
+
+  for (var i = 0, l = exclusions.length; i < l; i++) {
+    // If any part of the file's name (absolute or relative)
+    // contains an excluded folder, it should be ignored
+    if (filename.indexOf(exclusions[i]) !== -1) {
+      result = true;
+      break;
+    }
+  }
+
+  return result;
+}
