@@ -1,35 +1,44 @@
-var fs = require('fs'),
-    path = require('path');
+var fs    = require('fs'),
+    path  = require('path');
 
 // Hash to avoid duplicates and membership lookups
+// Outside of the closure because of the recursive definition
 var extensions = {};
 
 // Returns a list of all unique file extensions across
 // all files in path and path's subfolders
 // Precond: exclusions is an array of folder names to exclude from the search
-var getUniqueExtensions = module.exports = function (filepath, exclusions) {
+var getUniqueExtensions = module.exports = function (options) {
+  var filepath        = options.path || '',
+      exclusions      = options.exclusions || [],
+      includeDotFiles = options.includeDotFiles || false;
+
   // For all file names in the current directory
   fs.readdirSync(filepath).forEach(function (filename) {
 
     var fullName    = filepath + '/' + filename,
         isDirectory = fs.lstatSync(fullName).isDirectory(),
-        ext         = path.extname(filename);
+        ext         = path.extname(filename),
+        baseName;
 
     if (isDirectory) {
       // It's not on the ignore list
-      if ((exclusions && ! shouldBeIgnored(filename, exclusions)) ||
-          // Or there is no ignore list
-          (! exclusions || exclusions.length === 0)) {
-        getUniqueExtensions(fullName);
-      }
+      if (exclusions.length && shouldBeIgnored(filename, exclusions)) return;
+
+      getUniqueExtensions({
+        path: fullName,
+        exclusions: exclusions,
+        includeDotFiles: includeDotFiles
+      });
 
     // It's a regular file
-    } else {
-      // Ignore files without an extension
-      if (ext) {
-        // Add the extension to the table
-        extensions[ext] = 1;
-      }
+    } else if (ext) {
+      // Add the extension to the table
+      extensions[ext] = 1;
+
+    // It's a dotfile (doesn't have an extension according to node)
+    } else if (includeDotFiles && ((baseName = path.basename(filename))[0] === '.')) {
+      extensions[baseName] = 1;
     }
   });
 
