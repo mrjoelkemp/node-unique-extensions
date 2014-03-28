@@ -14,8 +14,14 @@
     "url": "https://github.com/mrjoelkemp/node-unique-extensions"
   },
   "keywords": [
-    "extensions"
+    "extensions",
+    "unique",
+    "directory",
+    "files"
   ],
   "author": "Joel Kemp <joel@mrjoelkemp.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "exclusion-manager": "^1.0.1"
+  }
 }

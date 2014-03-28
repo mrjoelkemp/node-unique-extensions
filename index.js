@@ -1,5 +1,6 @@
 var fs    = require('fs'),
-    path  = require('path');
+    path  = require('path'),
+    ExclusionManager = require('exclusion-manager');
 
 // Hash to avoid duplicates and membership lookups
 // Outside of the closure because of the recursive definition
@@ -10,8 +11,14 @@ var extensions = {};
 // Precond: exclusions is an array of folder names to exclude from the search
 var getUniqueExtensions = module.exports = function (options) {
   var filepath        = options.path || '',
-      exclusions      = options.exclusions || [],
+      emanager        = options.exclusions || [],
       includeDotFiles = options.includeDotFiles || false;
+
+  // Convert the given list in the first call
+  // Gets ignored in subsequent recursions
+  if (emanager instanceof Array) {
+    emanager = new ExclusionManager(options.exclusions);
+  }
 
   // For all file names in the current directory
   fs.readdirSync(filepath).forEach(function (filename) {
@@ -23,11 +30,14 @@ var getUniqueExtensions = module.exports = function (options) {
 
     if (isDirectory) {
       // It's not on the ignore list
-      if (exclusions.length && shouldBeIgnored(filename, exclusions)) return;
+      if (emanager.shouldIgnore(filename)) return;
 
+      // if (exclusions.length && shouldBeIgnored(filename, exclusions)) return;
+
+      // Grab the directory's unique extensions
       getUniqueExtensions({
-        path: fullName,
-        exclusions: exclusions,
+        path:            fullName,
+        exclusions:      emanager,
         includeDotFiles: includeDotFiles
       });
 
@@ -44,20 +54,3 @@ var getUniqueExtensions = module.exports = function (options) {
 
   return Object.keys(extensions);
 };
-
-function shouldBeIgnored(filename, exclusions) {
-  var result = false;
-
-  exclusions = exclusions || [];
-
-  for (var i = 0, l = exclusions.length; i < l; i++) {
-    // If any part of the file's name (absolute or relative)
-    // contains an excluded folder, it should be ignored
-    if (filename.indexOf(exclusions[i]) !== -1) {
-      result = true;
-      break;
-    }
-  }
-
-  return result;
-}
